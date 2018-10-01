@@ -4,6 +4,7 @@ from model import load_cnn
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 cnn = load_cnn('facial_keypoint_model.h5')
+filter_num = 0
 
 cam = cv2.VideoCapture(0)
 
@@ -28,22 +29,42 @@ while(True):
 		for i in range(0, len(predicted_keypoints), 2): # During training, keypoints were scaled to range [-1, 1] - so descale data here
 			keypoints.append((int((predicted_keypoints[i]*48+48)*w/96.0), int((predicted_keypoints[i+1]*48+48)*h/96.0)))
 
-		# Glasses filter code
-		glasses = cv2.imread('images/glasses.png', -1)
-		glasses_width = int((keypoints[3][0] - keypoints[5][0])*2)
-		glasses_height = int((keypoints[0][1] - keypoints[6][1])*3.7)
-		glasses = cv2.resize(glasses, (glasses_width, glasses_height))
-		y1, y2 = keypoints[0][1]+int(w*0.1)-glasses_height, keypoints[0][1]+int(w*0.1)
-		x1, x2 = keypoints[5][0]-int(w*0.23), keypoints[5][0]+glasses_width-int(w*0.23)
+		img = []
+		img_height = 0
+		img_width = 0
 
-		# Handle transparency of glasses filter
-		alpha = glasses[:,:,3]/255.0
+		if filter_num == 0: # Glasses Filter
+			img = cv2.imread('images/glasses.png', -1)
+			img_width = int((keypoints[3][0] - keypoints[5][0])*2)
+			img_height = int((keypoints[0][1] - keypoints[6][1])*3.7)
+			img = cv2.resize(img, (img_width, img_height))
+			y1, y2 = keypoints[0][1]+int(w*0.13)-img_height, keypoints[0][1]+int(w*0.13)
+			x1, x2 = keypoints[5][0]-int(w*0.23), keypoints[5][0]+img_width-int(w*0.23)
+
+		elif filter_num == 1:  # Mustache Filter
+			img = cv2.imread('images/mustache.png', -1)
+			img_width = int((keypoints[11][0] - keypoints[12][0])*3.5)
+			img_height = int((keypoints[14][1] - keypoints[13][1])*3)
+			img = cv2.resize(img, (img_width, img_height))
+			y1, y2 = keypoints[13][1]-int(w*0.13), keypoints[13][1]+img_height-int(w*0.13)
+			x1, x2 = keypoints[12][0]-int(w*0.33), keypoints[12][0]+img_width-int(w*0.33)
+
+		elif filter_num == 2:  # Cat Whiskers Filter
+			img = cv2.imread('images/whiskers.png', -1)
+			img_width = int((keypoints[3][0] - keypoints[5][0])*2)
+			img_height = int((keypoints[13][1] - keypoints[10][1])*7)
+			img = cv2.resize(img, (img_width, img_height))
+			y1, y2 = keypoints[10][1]-int(w*0.43), keypoints[10][1]+img_height-int(w*0.43)
+			x1, x2 = keypoints[5][0]-int(w*0.22), keypoints[5][0]+img_width-int(w*0.22)
+
+		# Handle transparency of filter
+		alpha = img[:,:,3]/255.0
 		alpha_face = 1 - alpha
 		for c in range(0, 3):
-			min_y = min(w,y2)
-			min_x = min(h,x2)
-			face[y1:min_y, x1:min_x, c] = (alpha[:min_y,:min_x] * glasses[:min_y,:min_x,c] +
-				alpha_face[:min_y,:min_x]*face[y1:min_y, x1:min_x, c])
+			min_y = min(h-y1,img_height)
+			min_x = min(w-x1,img_width)
+			face[y1:min(h,y2), x1:min(w,x2), c] = (alpha[:min_y,:min_x] * img[:min_y,:min_x,c] +
+				alpha_face[:min_y,:min_x]*face[y1:min(h,y2), x1:min(w,x2), c])
 
 		# Map modified face back to frame
 		frame[y:y+h, x:x+h] = face
@@ -59,8 +80,11 @@ while(True):
 
 	cv2.imshow('frame', frame)
 
-	if cv2.waitKey(1) & 0xFF == ord('q'):
+	c = cv2.waitKey(1)
+	if c == ord('q'):
 		break
+	elif c == ord(' '):
+		filter_num = (filter_num+1)%3
 
 cam.release()
 cv2.destroyAllWindows()
