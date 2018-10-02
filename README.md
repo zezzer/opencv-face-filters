@@ -1,6 +1,6 @@
 # opencv-face-filters
 
-Snapchat-like face filters using laptop camera or webcam. (Currently implemented filters are: glasses, mustache, and cat whiskers.)
+Snapchat-like face filters for laptop camera/webcam or video. (Currently implemented filters are: glasses, mustache, and cat whiskers.)
 
 ## Requirements
 
@@ -8,11 +8,16 @@ Snapchat-like face filters using laptop camera or webcam. (Currently implemented
 * NumPy
 * Keras 2.2.2
 * OpenCV-Python 3.4.3
-* Access to laptop camera or web camera
 
 ## Demo
 
+Facial filters applied on laptop camera:
+
 ![Alt Text](https://github.com/zezzer/opencv-face-filters/blob/master/images/demo.gif)
+
+Facial filters applied on a specified video input:
+
+![Alt Text](https://github.com/zezzer/opencv-face-filters/blob/master/images/kids.gif)
 
 ## Usage
 
@@ -20,7 +25,11 @@ Run the following command to launch the app:
 
 `python3 run.py`
 
-Press the space bar to switch between filters.
+Use the -v option to run facial filters on a video. 
+
+`python3 run.py -v /path/to/video`
+
+After the camera or video frame pops up, press the space bar to switch between filters.
 
 Press the 'q' key to quit the application.
 

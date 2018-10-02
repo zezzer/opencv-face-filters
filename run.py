@@ -1,14 +1,19 @@
 import numpy as np
 import cv2
 from model import load_cnn
+from argparse import ArgumentParser
+
+parser = ArgumentParser()
+parser.add_argument("-v", dest="video_file", help="Specify a video as input.")
+args = parser.parse_args()
 
 face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
 cnn = load_cnn('facial_keypoint_model.h5')
 filter_num = 0
 
-cam = cv2.VideoCapture(0)
+cam = cv2.VideoCapture(args.video_file or 0)
 
-while(True):
+while(cam.isOpened()):
 	ret, frame = cam.read()
 	frame = cv2.flip(frame, 1) # Main frame
 	frame2 = frame.copy() # Smaller frame to visualize the keypoint predictions

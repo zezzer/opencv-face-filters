@@ -20,7 +20,7 @@ def create_model(optimizer='adam', loss='mean_squared_error'):
 	model.add(Dropout(0.5))
 	model.add(Dense(30))
 
-	model.compile(optimizer=optimizer, loss=loss, metrics=['accuracy'])
+	model.compile(optimizer=optimizer, loss=loss)
 
 	return model;
 
