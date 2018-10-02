@@ -2,7 +2,11 @@
 
 Snapchat-like face filters for laptop camera/webcam or video. (Currently implemented filters are: glasses, mustache, and cat whiskers.)
 
-## Requirements
+## How it works
+
+Faces are detected from camera or video frames using OpenCV Haar Cascades. The detected faces are passed to a convolutional neural network implemented in Keras and trained on facial keypoint data (obtained from [Kaggle](https://www.kaggle.com/c/facial-keypoints-detection/data)). The predicted facial keypoints are then used to determine the placement of a filter in the image.
+
+## Prerequisites
 
 * Python 3.6
 * NumPy
